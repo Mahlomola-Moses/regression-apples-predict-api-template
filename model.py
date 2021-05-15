@@ -45,6 +45,67 @@ def _preprocess_data(data):
         The preprocessed data, ready to be used our model for prediction.
 
     """
+    df_train_o = df_train_o.drop(['Commodities'], axis=1)
+    df_train_o = df_train_o.drop(['Date'], axis=1)
+    df_train_o = df_train_o.drop(['year'], axis=1)
+
+    df_dummies = pd.get_dummies(df_train_o)
+
+    # lets make sure that all the column names have underscores instead of whitespaces
+    df_dummies.columns = [col.replace(" ", "_") for col in df_dummies.columns]
+    df_dummies.columns = [col.replace(".", "_") for col in df_dummies.columns]
+    df_dummies.columns = [col.replace("-", "_") for col in df_dummies.columns]
+    # lets have a look at our data
+
+    from statsmodels.graphics.correlation import plot_corr
+
+    fig = plt.figure(figsize=(15, 15));
+    ax = fig.add_subplot(111);
+    plot_corr(df_dummies.corr(), xnames=df_dummies.corr().columns, ax=ax)
+
+    # Separate data into independent (X) and dependent (y) variables
+    y_name = 'avg_price_per_kg'
+    X_names = list(df_dummies.columns)
+    X_names.remove(y_name)
+    X_data = df_dummies[X_names]
+    y_data = df_dummies[y_name]
+
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.feature_selection import VarianceThreshold
+    # Normalize data
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(X_data)
+    X_normalize = pd.DataFrame(X_scaled, columns=X_data.columns)
+
+    # Create VarianceThreshold object
+    selector = VarianceThreshold(threshold=0.03)
+
+    # Use the object to apply the threshold on data
+    selector.fit(X_normalize)
+
+    # Select new columns
+    X_new = X_normalize[X_normalize.columns[selector.get_support(indices=True)]]
+
+    # Save variable names for later
+    X_var_names = X_new.columns
+
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import train_test_split
+
+    X_train, X_test, y_train, y_test = train_test_split(X_data,
+                                                        y_data,
+                                                        test_size=0.20,
+                                                        shuffle=False)
+
+    X_var_train = X_train[X_var_names]
+    X_var_test = X_test[X_var_names]
+
+    # Get training and testing data for correlation threshold model
+    X_corr_names = X_names
+    X_corr_train = X_train[X_corr_names]
+    X_corr_test = X_test[X_corr_names]
+
+
     # Convert the json string to a python dictionary object
     feature_vector_dict = json.loads(data)
     # Load the dictionary as a Pandas DataFrame.
