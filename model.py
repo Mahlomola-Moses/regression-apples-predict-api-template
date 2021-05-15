@@ -45,6 +45,23 @@ def _preprocess_data(data):
         The preprocessed data, ready to be used our model for prediction.
 
     """
+
+
+    # Convert the json string to a python dictionary object
+    feature_vector_dict = json.loads(data)
+    # Load the dictionary as a Pandas DataFrame.
+    feature_vector_df = pd.DataFrame.from_dict([feature_vector_dict])
+
+    # ---------------------------------------------------------------
+    # NOTE: You will need to swap the lines below for your own data
+    # preprocessing methods.
+    #
+    # The code below is for demonstration purposes only. You will not
+    # receive marks for submitting this code in an unchanged state.
+    # ---------------------------------------------------------------
+
+    # ----------- Replace this code with your own preprocessing steps --------
+
     df_train_o = df_train_o.drop(['Commodities'], axis=1)
     df_train_o = df_train_o.drop(['Date'], axis=1)
     df_train_o = df_train_o.drop(['year'], axis=1)
@@ -105,26 +122,6 @@ def _preprocess_data(data):
     X_corr_train = X_train[X_corr_names]
     X_corr_test = X_test[X_corr_names]
 
-
-    # Convert the json string to a python dictionary object
-    feature_vector_dict = json.loads(data)
-    # Load the dictionary as a Pandas DataFrame.
-    feature_vector_df = pd.DataFrame.from_dict([feature_vector_dict])
-
-    # ---------------------------------------------------------------
-    # NOTE: You will need to swap the lines below for your own data
-    # preprocessing methods.
-    #
-    # The code below is for demonstration purposes only. You will not
-    # receive marks for submitting this code in an unchanged state.
-    # ---------------------------------------------------------------
-
-    # ----------- Replace this code with your own preprocessing steps --------
-    
-
-    feature_vector_df = feature_vector_df[(feature_vector_df['Commodities'] == 'APPLE GOLDEN DELICIOUS')]
-    predict_vector = feature_vector_df[['Total_Qty_Sold','Stock_On_Hand']]
-                                
     # ------------------------------------------------------------------------
 
     return predict_vector
