@@ -1,24 +1,18 @@
 """
-
     Helper functions for the pretrained model to be used within our API.
-
     Author: Explore Data Science Academy.
-
     Note:
     ---------------------------------------------------------------------
     Plase follow the instructions provided within the README.md file
     located within this directory for guidance on how to use this script
     correctly.
-
     Importantly, you will need to modify this file by adding
     your own data preprocessing steps within the `_preprocess_data()`
     function.
     ----------------------------------------------------------------------
-
     Description: This file contains several functions used to abstract aspects
     of model interaction within the API. This includes loading a model from
-    file, data preprocessing, and model prediction.  
-
+    file, data preprocessing, and model prediction.
 """
 
 # Helper Dependencies
@@ -29,24 +23,17 @@ import json
 
 def _preprocess_data(data):
     """Private helper function to preprocess data for model prediction.
-
     NB: If you have utilised feature engineering/selection in order to create
     your final model you will need to define the code here.
-
-
     Parameters
     ----------
     data : str
         The data payload received within POST requests sent to our API.
-
     Returns
     -------
     Pandas DataFrame : <class 'pandas.core.frame.DataFrame'>
         The preprocessed data, ready to be used our model for prediction.
-
     """
-
-
     # Convert the json string to a python dictionary object
     feature_vector_dict = json.loads(data)
     # Load the dictionary as a Pandas DataFrame.
@@ -62,65 +49,13 @@ def _preprocess_data(data):
 
     # ----------- Replace this code with your own preprocessing steps --------
 
-    df_train_o = df_train_o.drop(['Commodities'], axis=1)
-    df_train_o = df_train_o.drop(['Date'], axis=1)
-    df_train_o = df_train_o.drop(['year'], axis=1)
 
-    df_dummies = pd.get_dummies(df_train_o)
-
-    # lets make sure that all the column names have underscores instead of whitespaces
-    df_dummies.columns = [col.replace(" ", "_") for col in df_dummies.columns]
-    df_dummies.columns = [col.replace(".", "_") for col in df_dummies.columns]
-    df_dummies.columns = [col.replace("-", "_") for col in df_dummies.columns]
-    # lets have a look at our data
-
-    from statsmodels.graphics.correlation import plot_corr
-
-    fig = plt.figure(figsize=(15, 15));
-    ax = fig.add_subplot(111);
-    plot_corr(df_dummies.corr(), xnames=df_dummies.corr().columns, ax=ax)
-
-    # Separate data into independent (X) and dependent (y) variables
-    y_name = 'avg_price_per_kg'
-    X_names = list(df_dummies.columns)
-    X_names.remove(y_name)
-    X_data = df_dummies[X_names]
-    y_data = df_dummies[y_name]
-
-    from sklearn.preprocessing import MinMaxScaler
-    from sklearn.feature_selection import VarianceThreshold
-    # Normalize data
-    scaler = MinMaxScaler()
-    X_scaled = scaler.fit_transform(X_data)
-    X_normalize = pd.DataFrame(X_scaled, columns=X_data.columns)
-
-    # Create VarianceThreshold object
-    selector = VarianceThreshold(threshold=0.03)
-
-    # Use the object to apply the threshold on data
-    selector.fit(X_normalize)
-
-    # Select new columns
-    X_new = X_normalize[X_normalize.columns[selector.get_support(indices=True)]]
-
-    # Save variable names for later
-    X_var_names = X_new.columns
-
-    from sklearn.linear_model import LinearRegression
-    from sklearn.model_selection import train_test_split
-
-    X_train, X_test, y_train, y_test = train_test_split(X_data,
-                                                        y_data,
-                                                        test_size=0.20,
-                                                        shuffle=False)
-
-    X_var_train = X_train[X_var_names]
-    X_var_test = X_test[X_var_names]
-
-    # Get training and testing data for correlation threshold model
-    X_corr_names = X_names
-    X_corr_train = X_train[X_corr_names]
-    X_corr_test = X_test[X_corr_names]
+    feature_vector_df = feature_vector_df[(feature_vector_df['Commodities'] == 'APPLE GOLDEN DELICIOUS')]
+    predict_vector = feature_vector_df[['Container_M4183', 'Province_W_CAPE_BERGRIVER_ETC', 'Size_Grade_1X',
+       'Container_EC120', 'Size_Grade_1M', 'Container_EF120', 'day',
+       'Size_Grade_2L', 'Container_JG110', 'Size_Grade_2M',
+       'Province_EASTERN_CAPE', 'Container_JE090', 'Weight_Kg',
+       'Size_Grade_2S', 'Container_IA400', 'Province_NATAL']]
 
     # ------------------------------------------------------------------------
 
@@ -128,37 +63,31 @@ def _preprocess_data(data):
 
 def load_model(path_to_model:str):
     """Adapter function to load our pretrained model into memory.
-
     Parameters
     ----------
     path_to_model : str
         The relative path to the model weights/schema to load.
         Note that unless another file format is used, this needs to be a
         .pkl file.
-
     Returns
     -------
     <class: sklearn.estimator>
         The pretrained model loaded into memory.
-
     """
     return pickle.load(open(path_to_model, 'rb'))
 
 def make_prediction(data, model):
     """Prepare request data for model prediciton.
-
     Parameters
     ----------
     data : str
         The data payload received within POST requests sent to our API.
     model : <class: sklearn.estimator>
         An sklearn model object.
-
     Returns
     -------
     list
         A 1-D python list containing the model prediction.
-
     """
     # Data preprocessing.
     prep_data = _preprocess_data(data)
