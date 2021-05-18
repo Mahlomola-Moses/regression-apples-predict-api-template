@@ -30,6 +30,8 @@ df_train[['Date']] = pd.to_datetime(df_train['Date'])
 df_train['day'] = df_train['Date'].dt.day
 df_train['month'] = df_train['Date'].dt.month
 df_train['year'] = df_train['Date'].dt.year
+
+
 df_train = df_train.drop(['Commodities', 'Date', 'year'], axis=1)
 
 
