@@ -34,10 +34,15 @@ def _preprocess_data(data):
     Pandas DataFrame : <class 'pandas.core.frame.DataFrame'>
         The preprocessed data, ready to be used our model for prediction.
     """
+    
+    
+    
+    
+    
     # Convert the json string to a python dictionary object
     feature_vector_dict = json.loads(data)
     # Load the dictionary as a Pandas DataFrame.
-    feature_vector_df = pd.DataFrame.from_dict([feature_vector_dict])
+    df_test = pd.DataFrame.from_dict([feature_vector_dict])
 
     # ---------------------------------------------------------------
     # NOTE: You will need to swap the lines below for your own data
@@ -50,13 +55,26 @@ def _preprocess_data(data):
     # ----------- Replace this code with your own preprocessing steps --------
 
 
-    feature_vector_df = feature_vector_df[(feature_vector_df['Commodities'] == 'APPLE GOLDEN DELICIOUS')]
-    predict_vector = feature_vector_df[['Container_M4183', 'Province_W_CAPE_BERGRIVER_ETC', 'Size_Grade_1X',
+    df_test['Date'] = pd.to_datetime(df_test['Date'])
+    df_test['day'] = df_test['Date'].dt.day
+    df_test['month'] = df_test['Date'].dt.month
+    df_test['year'] = df_test['Date'].dt.year
+
+    df_test = df_test[df_test.Commodities == 'APPLE GOLDEN DELICIOUS']  # filter for APPLE GOLDEN DELICIOUS
+    df_test = df_test.drop(['Commodities', 'Date', 'year'], axis=1)
+
+    df_test = pd.get_dummies(df_test)
+    df_test.columns = [col.replace(" ", "_") for col in df_test.columns]
+    df_test.columns = [col.replace(".", "_") for col in df_test.columns]
+    df_test.columns = [col.replace("-", "_") for col in df_test.columns]
+
+    predict_vector = df_test[['Container_M4183', 'Province_W_CAPE_BERGRIVER_ETC', 'Size_Grade_1X',
        'Container_EC120', 'Size_Grade_1M', 'Container_EF120', 'day',
        'Size_Grade_2L', 'Container_JG110', 'Size_Grade_2M',
        'Province_EASTERN_CAPE', 'Container_JE090', 'Weight_Kg',
        'Size_Grade_2S', 'Container_IA400', 'Province_NATAL']]
 
+    
     # ------------------------------------------------------------------------
 
     return predict_vector
