@@ -1,27 +1,8 @@
-"""
-
-    Simple Flask-based API for Serving an Sklearn Model.
-
-    Author: Explore Data Science Academy.
-
-    Note:
-    ---------------------------------------------------------------------
-    Plase follow the instructions provided within the README.md file
-    located within this directory for guidance on how to use this script
-    correctly.
-    ---------------------------------------------------------------------
-
-    Description: This file instantiates a Flask webserver
-    as a means to create a simple API used to deploy models trained within
-    the sklearn framework.
-
-"""
-
 # API Dependencies
 import pickle
 import json
 import numpy as np
-from model import load_model, make_prediction
+from model import readModel, make_prediction
 from flask import Flask, request, jsonify
 
 # Application definition
@@ -29,8 +10,8 @@ app = Flask(__name__)
 
 # Load our model into memory.
 # Please update this path to reflect your own trained model.
-static_model = load_model(
-    path_to_model='assets/trained-models/mlr_model.pkl')
+static_model = readModel(
+    path_to_model='assets/trained-models/apples_simple_lm_regression.pkl')
 
 print ('-'*40)
 print ('Model succesfully loaded')
