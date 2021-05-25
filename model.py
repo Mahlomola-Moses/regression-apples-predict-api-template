@@ -16,7 +16,7 @@ def _preprocess_data(data):
     
 
     data_dic_df = data_dic_df[(data_dic_df['Commodities'] == 'APPLE GOLDEN DELICIOUS')]
-    dataPrediction = data_dic_df[['Weight_Kg','Sales_Total']]
+    dataPrediction = data_dic_df[['Weight_Kg','Sales_Total','Low_Price','High_Price','Total_Qty_Sold','Total_Kg_Sold','Stock_On_Hand','avg_price_per_kg']]
                                 
     # ------------------------------------------------------------------------
 
